@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>用户中心</title>
+	<link rel="stylesheet" href="base/normalize.css">
+	<link rel="stylesheet" href="base/anim.css">
+	<link rel="stylesheet" href="css/font-awesome.css">
+	<link rel="stylesheet" href="css/nav.css">
+	<link rel="stylesheet" href="css/user-center.css">
+</head>
+<body>
+	<div class="nav">
+		<div class="main-wrapper">
+			<div class="logo">
+				<img src="images/you.jpg" alt="">
+			</div>
+			<div class="menu">
+					<a class="menuChild" href="index.html">首页</a>
+					<a class="menuChild" href="feedback.html">反馈</a>
+					<a class="menuChild" href="about.html">关于我们</a>
+			</div>
+			<div class="usercenter">
+				<div class="avatar">
+					<img src="images/you.jpg" alt="用户头像">
+				</div>
+				<div class="p"><span>账号<i class="fa fa-chevron-up"></i></span>
+					<ul>
+						<li>用户设置</li>
+						<li>个人中心</li>
+						<li onclick="logout()">退出登陆</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="main-wrapper">
+		<div class="user-center">
+			<header class="user-center-header">
+				<span>个人中心</span>
+				<a href="user.html"><span>用户设置</span></a>
+			</header>
+			<div class="avatar">
+				<img src="images/you.jpg" alt="" style="height:80px;width:80px">
+				<div class="username-intro">
+					<span class="username" id="username">明明三省<i>lv6</i></span><br>
+					<span class="userintro">人矮要承认，打你别不服气。。</span>
+				</div>
+				<div class="user-zan">
+					<a href="#"><i class="fa fa-thumbs-o-up fa-2x"></i>赞(85)</a><br>
+					<span>人生就该默默点赞</span>
+				</div>
+			</div>
+			<div class="user-data">
+				<ul class="first">
+					<li><i>34</i><br><span>列队</span></li>
+					<li><i>56</i><br><span>排队</span></li>
+					<li><i>253</i><br><span>赞</span></li>
+					<li class="last"><i>5</i><br><span>奖章</span></li>
+				</ul>
+				<ul class="second" id="ulsecond">
+					<li class="active"><i class="fa fa-align-justify fa-2x"></i></li>
+					<li><i class="fa fa-th-large fa-2x"></i></li>
+				</ul>
+			</div>
+		<div class="user-content one" id="user-content">
+			<section class="startline noactive">
+				<header><span>队形贴</span></header>
+        <div id="mytopics"></div>
+				<footer><span>展开<i class="fa fa-hand-o-down"></i></span></footer>
+			</section>
+			<section class="standline noactive">
+				<header><span>神回复</span></header>
+				<footer><span>展开<i class="fa fa-hand-o-down"></i></span></footer>
+			</section>
+			<section class="zaner noactive">
+				<header><span>拼段子</span></header>
+				<footer><span>展开<i class="fa fa-hand-o-down"></i></span></footer>
+			</section>
+			<section class="medal noactive">
+				<header><span>填空贴</span></header>
+				<footer><span>展开<i class="fa fa-hand-o-down"></i></span></footer>
+			</section>
+		</div>
+		</div>
+	</div>
+	<div>
+	</div>
+	<div id="toast" style="position:fixed;z-index:1000;width:100%;color:white;height:50px;top:0px;text-align:center;line-height:50px;background-color:black;opacity:0.5;"></div>
+</body>
+<script type="text/javascript" src="js/jquery-1.js"></script>
+<script type="text/javascript" src="js/jquery-2.js"></script>
+<script type="text/javascript" src="js/user.js"></script>
+<script type="text/javascript" src="js/cookie.js"></script>
+<script type="text/javascript" src="js/http.js"></script>
+<script type="text/javascript">
+$("#toast").hide();
+var name=window.localStorage.name;
+$("#username").html(name);
+getMyTopic();
+function getMyTopic(){
+	http.getTopic(name,function (result) {
+		for (var i in result){
+			insertTopic(result[i]);
+			getComments(result[i].id);
+		}
+	})
+}
+function getComments(id){
+	http.getComments(id,function(result){
+		for(var i in result){
+			insertComment(id,result[i]);
+		}
+	})
+}
+function insertTopic(json){
+	var commetid="comment"+json.id;
+	var topid="topic"+json.id;
+		var template='<div class="card-wrapper">'+
+'					<div class="card">'+
+'						<div class="card-user">'+
+'							<img src="images/you.jpg" alt="">'+
+'							<span>'+json.poster+'</span>'+
+'						</div>'+
+'						<div class="card-theme">'+
+'							<a href="line.html"><span><i class="fa fa-tags"></i>队形贴</span></a>'+
+'						</div>'+
+'						<div class="card-title">'+
+'							<span class="card-look"><i class="fa fa-eye"></i>浏览(500)</span>'+
+'							<span class="card-time"><i class="fa-clock-o fa fa-1x"></i>'+json.time+'</span>'+
+'						</div>'+
+'						<div class="card-content" contenteditable="true" oninput="reviseTopic('+json.id+')">'+
+'							<p id="'+topid+'">'+json.content+'</p>'+
+'						</div>'+
+'						<div class="card-bottom">'+
+'							<span class="card-line"><i class="fa fa-pencil"></i>站队</span>'+
+'							<span class="card-zan"><i class="fa fa-thumbs-o-up"></i>赞(96)</span>'+
+'							<span class="card-love"><i class="fa fa-heart-o"></i>收藏(96)</span>'+
+'							<span class="card-danger"><i class="fa fa-hand-o-down"></i>举报</span>'+
+'						</div>'+
+'					</div>'+
+'					<div class="feedback" id="'+json.id+'">'+
+'					</div>'+
+'					<div class="comment-input">'+
+'						<textarea name="comment" class="comment" id="'+commetid+'" rows="6"></textarea>'+
+'						<button onclick="postComment('+json.id+')">评论</button>'+
+'					</div>'+
+'				</div>';
+$("#mytopics").append(template);
+}
+function insertComment(id,json){
+	var template='<div class="card-feedback">'+
+'							<img src="images/you.jpg" alt="">'+
+'							<div class="feedback-title">'+
+'								<span class="feedback-user">'+json.commenter+'</span>'+
+'								<span class="feedback-time"><i class="fa-clock-o fa fa-1x"></i>'+json.time+'</span>'+
+'								<span><i class="fa fa-thumbs-o-up"></i>赞(96)</span>'+
+'							</div>'+
+'							<div class="feedback-content">'+
+'								<span>'+json.content+'</span>'+
+'							</div>'+
+'						</div>';
+var qy="#"+id;
+$(qy).append(template);
+}
+function reviseTopic(topid){
+	var id="topic"+topid;
+	var content=document.getElementById(id).innerHTML;
+	http.reviseTopic(topid,content,function(data,status){
+		if(status=='success'){
+			showToast('修改成功！持续键入，实时修改哦～');
+		}else{
+			alert('修改失败！');
+		}
+	})
+}
+var a;
+function showToast(str){
+	clearTimeout(a);
+	$("#toast").html(str);
+	$("#toast").show();
+	a=setTimeout(function(){
+		$("#toast").hide();
+	},2000)
+}
+function logout(){
+	window.localStorage.name='';
+	location.href="index.html";
+}
+</script>
+</html>
